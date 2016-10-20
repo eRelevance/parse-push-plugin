@@ -91,10 +91,11 @@ public class ParsePushPlugin extends CordovaPlugin {
       });
    }
 
+   // Hikacking this method to return deviceToken
    private void getInstallationObjectId(final CallbackContext callbackContext) {
       cordova.getThreadPool().execute(new Runnable() {
          public void run() {
-            String objectId = ParseInstallation.getCurrentInstallation().getObjectId();
+            String objectId = ParseInstallation.getCurrentInstallation().getString("deviceToken");
             callbackContext.success(objectId);
          }
       });

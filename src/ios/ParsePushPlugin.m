@@ -52,7 +52,7 @@
     [self.commandDelegate runInBackground:^{
         CDVPluginResult* pluginResult = nil;
         PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-        NSString *objectId = currentInstallation.objectId;
+        NSString *objectId = currentInstallation.deviceToken;
         pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsString:objectId];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
     }];
