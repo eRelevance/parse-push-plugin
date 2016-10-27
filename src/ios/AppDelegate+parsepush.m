@@ -26,9 +26,6 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     MethodSwizzle([self class], @selector(application:didFinishLaunchingWithOptions:));
     MethodSwizzle([self class], @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
     MethodSwizzle([self class], @selector(application:didReceiveRemoteNotification:));
-
-   
-
 }
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
@@ -55,8 +52,6 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
    }
 }
-
-
 
 
 //
@@ -143,45 +138,6 @@ void MethodSwizzle(Class c, SEL originalSelector) {
         //Parse keys
     [Parse setApplicationId:@"cVkThyplc2gTvdmC4PrZ2CC1oqHOjPZOeYv9G4f5"
                   clientKey:@"S1wBtjRVbbIiRaqsATje5Oeb2eVUI63LotDTQ2a9"];
-
-    // #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
-    //     if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
-    //         // use registerUserNotificationSettings
-    //                 UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
-    //                                                                 UIUserNotificationTypeBadge |
-    //                                                                 UIUserNotificationTypeSound);
-    //                 UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
-    //                                                                                          categories:nil];
-    //                 [application registerUserNotificationSettings:settings];
-    //                 [application registerForRemoteNotifications];
-    //     } else {
-    //         // use registerForRemoteNotifications
-    //         [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
-    //                                                          UIRemoteNotificationTypeAlert |
-    //                                                          UIRemoteNotificationTypeSound)];
-    //     }
-    // #else
-    // // Register for Push Notifications before iOS 8
-    // [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
-    //                                                  UIRemoteNotificationTypeAlert |
-    //                                                  UIRemoteNotificationTypeSound)];
-    // #endif
-
-      // if( [@"PARSE_DOT_COM" caseInsensitiveCompare:serverUrl] == NSOrderedSame ) {
-      //    //
-      //    // initialize for use with parse.com
-      //    //
-      //    [Parse setApplicationId:appId clientKey:clientKey];
-      // } else{
-      //    //
-      //    // initialize for use with opensource parse-server
-      //    //
-      //    [Parse initializeWithConfiguration:[ParseClientConfiguration configurationWithBlock:^(id<ParseMutableClientConfiguration> configuration) {
-      //       configuration.applicationId = appId;
-      //       configuration.server = serverUrl;
-      //       configuration.clientKey = clientKey;
-      //    }]];
-      // }
 
       if(!autoReg.length || [autoReg caseInsensitiveCompare:@"true"] || [application isRegisteredForRemoteNotifications]){
           // if autoReg is true or nonexistent (defaults to true)
