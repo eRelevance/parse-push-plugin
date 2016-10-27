@@ -26,7 +26,38 @@ void MethodSwizzle(Class c, SEL originalSelector) {
     MethodSwizzle([self class], @selector(application:didFinishLaunchingWithOptions:));
     MethodSwizzle([self class], @selector(application:didRegisterForRemoteNotificationsWithDeviceToken:));
     MethodSwizzle([self class], @selector(application:didReceiveRemoteNotification:));
+
+   
+
 }
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken
+{
+    // Store the deviceToken in the current installation and save it to Parse.
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    [currentInstallation setDeviceTokenFromData:deviceToken];
+    [currentInstallation saveInBackground];
+    
+// Get new device token
+   const char *data = [deviceToken bytes];
+   NSMutableString* newDeviceTokenString = [NSMutableString string];
+   for (int i = 0; i < [deviceToken length]; i++) {
+      [newDeviceTokenString appendFormat:@"%02.2hhx", data[i]];
+   }
+
+   // Save new device token if necessary
+   NSString *currentDeviceTokenString = [[NSUserDefaults standardUserDefaults] objectForKey:@"PushTokenString"];
+    
+   if ((![newDeviceTokenString isEqualToString:currentDeviceTokenString]) && (newDeviceTokenString.length)) {
+      [[NSUserDefaults standardUserDefaults] setObject:newDeviceTokenString forKey:@"PushTokenString"];
+      [[NSUserDefaults standardUserDefaults] setBool:FALSE forKey:@"PushTokenSent"];
+      [[NSUserDefaults standardUserDefaults] synchronize];
+
+   }
+}
+
+
+
 
 //
 // noop defaults for the swizzling mechanism
@@ -109,21 +140,48 @@ void MethodSwizzle(Class c, SEL originalSelector) {
          @throw invalidSettingException;
       }
 
-      if( [@"PARSE_DOT_COM" caseInsensitiveCompare:serverUrl] == NSOrderedSame ) {
-         //
-         // initialize for use with parse.com
-         //
-         [Parse setApplicationId:appId clientKey:clientKey];
-      } else{
-         //
-         // initialize for use with opensource parse-server
-         //
-         [Parse initializeWithConfiguration:[ParseClientConfiguration configurationWithBlock:^(id<ParseMutableClientConfiguration> configuration) {
-            configuration.applicationId = appId;
-            configuration.server = serverUrl;
-            configuration.clientKey = clientKey;
-         }]];
-      }
+        //Parse keys
+    [Parse setApplicationId:@"cVkThyplc2gTvdmC4PrZ2CC1oqHOjPZOeYv9G4f5"
+                  clientKey:@"S1wBtjRVbbIiRaqsATje5Oeb2eVUI63LotDTQ2a9"];
+
+    // #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 80000
+    //     if ([application respondsToSelector:@selector(registerUserNotificationSettings:)]) {
+    //         // use registerUserNotificationSettings
+    //                 UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
+    //                                                                 UIUserNotificationTypeBadge |
+    //                                                                 UIUserNotificationTypeSound);
+    //                 UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
+    //                                                                                          categories:nil];
+    //                 [application registerUserNotificationSettings:settings];
+    //                 [application registerForRemoteNotifications];
+    //     } else {
+    //         // use registerForRemoteNotifications
+    //         [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
+    //                                                          UIRemoteNotificationTypeAlert |
+    //                                                          UIRemoteNotificationTypeSound)];
+    //     }
+    // #else
+    // // Register for Push Notifications before iOS 8
+    // [application registerForRemoteNotificationTypes:(UIRemoteNotificationTypeBadge |
+    //                                                  UIRemoteNotificationTypeAlert |
+    //                                                  UIRemoteNotificationTypeSound)];
+    // #endif
+
+      // if( [@"PARSE_DOT_COM" caseInsensitiveCompare:serverUrl] == NSOrderedSame ) {
+      //    //
+      //    // initialize for use with parse.com
+      //    //
+      //    [Parse setApplicationId:appId clientKey:clientKey];
+      // } else{
+      //    //
+      //    // initialize for use with opensource parse-server
+      //    //
+      //    [Parse initializeWithConfiguration:[ParseClientConfiguration configurationWithBlock:^(id<ParseMutableClientConfiguration> configuration) {
+      //       configuration.applicationId = appId;
+      //       configuration.server = serverUrl;
+      //       configuration.clientKey = clientKey;
+      //    }]];
+      // }
 
       if(!autoReg.length || [autoReg caseInsensitiveCompare:@"true"] || [application isRegisteredForRemoteNotifications]){
           // if autoReg is true or nonexistent (defaults to true)
@@ -141,14 +199,21 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
 - (void)swizzled_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
 {
-    NSLog(@"PN registration successful. Saving device token to installation");
+    // NSLog(@"PN registration successful. Saving device token to installation");
     //
     // Call existing method in case it's already defined in main project's AppDelegate
-    [self swizzled_application:application didRegisterForRemoteNotificationsWithDeviceToken:newDeviceToken];
+    // [self swizzled_application:application didRegisterForRemoteNotificationsWithDeviceToken:newDeviceToken];
 
     //
     // Save device token
-    [ParsePushPlugin saveDeviceTokenToInstallation:newDeviceToken];
+    //[ParsePushPlugin saveDeviceTokenToInstallation:newDeviceToken];
+      PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+  [currentInstallation setDeviceTokenFromData:newDeviceToken];
+  [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        NSInteger errCode = [error code];
+NSLog(@"  %@", [error userInfo]);
+        [currentInstallation saveEventually];
+    }];
 }
 
 - (void)swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo

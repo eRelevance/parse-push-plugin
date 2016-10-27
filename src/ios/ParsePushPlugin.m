@@ -180,9 +180,15 @@
 
 + (void)saveDeviceTokenToInstallation: (NSData*)deviceToken
 {
-   PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-   [currentInstallation setDeviceTokenFromData:deviceToken];
-   [currentInstallation saveInBackground];
+  PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+  [currentInstallation setDeviceTokenFromData:deviceToken];
+  currentInstallation.channels = @[ @"global" ];
+
+  [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+        NSInteger errCode = [error code];
+NSLog(@"  %@", [error userInfo]);
+        [currentInstallation saveEventually];
+    }];
 }
 
 @end
