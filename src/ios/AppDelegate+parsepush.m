@@ -155,21 +155,21 @@ void MethodSwizzle(Class c, SEL originalSelector) {
 
 - (void)swizzled_application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)newDeviceToken
 {
-    // NSLog(@"PN registration successful. Saving device token to installation");
+     NSLog(@"PN registration successful. Saving device token to installation");
     //
     // Call existing method in case it's already defined in main project's AppDelegate
-    // [self swizzled_application:application didRegisterForRemoteNotificationsWithDeviceToken:newDeviceToken];
+     [self swizzled_application:application didRegisterForRemoteNotificationsWithDeviceToken:newDeviceToken];
 
     //
     // Save device token
-    //[ParsePushPlugin saveDeviceTokenToInstallation:newDeviceToken];
-      PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-  [currentInstallation setDeviceTokenFromData:newDeviceToken];
-  [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
-        NSInteger errCode = [error code];
-NSLog(@"  %@", [error userInfo]);
-        [currentInstallation saveEventually];
-    }];
+    [ParsePushPlugin saveDeviceTokenToInstallation:newDeviceToken];
+//      PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+//  [currentInstallation setDeviceTokenFromData:newDeviceToken];
+//  [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+//        NSInteger errCode = [error code];
+//NSLog(@"  %@", [error userInfo]);
+//        [currentInstallation saveEventually];
+//    }];
 }
 
 - (void)swizzled_application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo
